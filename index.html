@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -135,10 +135,34 @@
         margin: 10px 0;
       }
     }
+
+    /* >>> Animated dark background with grid lines <<< */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #0d1117;
+      background-image: linear-gradient(white 1px, transparent 1px),
+                        linear-gradient(90deg, white 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: -1;
+      animation: moveGrid 10s linear infinite;
+    }
+
+    @keyframes moveGrid {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: 40px 40px;
+      }
+    }
   </style>
 </head>
 <body>
-
 <div class="container" id="start-screen">
   <h2>Welcome to the Web Quiz</h2>
   <input type="text" id="username" placeholder="Enter your name" />
@@ -171,23 +195,13 @@ const quizData = {
     { q: "Which tag creates a hyperlink?", a: ["<link>", "<a>", "<href>"], correct: 1 },
     { q: "What tag creates a line break?", a: ["<br>", "<lb>", "<break>"], correct: 0 },
     { q: "Which tag adds an image?", a: ["<pic>", "<img>", "<src>"], correct: 1 },
-    { q: "What is the correct doctype?", a: ["<!DOCTYPE html>", "<html5>", "<doc>"], correct: 0 },
-    { q: "Which tag defines a paragraph?", a: ["<p>", "<para>", "<text>"], correct: 0 },
-    { q: "What tag is used for lists?", a: ["<ul>", "<ol>", "Both"], correct: 2 },
-    { q: "Which tag defines a heading?", a: ["<head>", "<title>", "<h1>"], correct: 2 },
-    { q: "Which attribute sets the image path?", a: ["src", "href", "alt"], correct: 0 },
-    { q: "What tag contains page metadata?", a: ["<meta>", "<head>", "<body>"], correct: 1 }
+    { q: "What is the correct doctype?", a: ["<!DOCTYPE html>", "<html5>", "<doc>"], correct: 0 }
   ],
   CSS: [
     { q: "What does CSS stand for?", a: ["Creative Style Sheet", "Cascading Style Sheets", "Computer Style Sheet"], correct: 1 },
     { q: "Which property sets text color?", a: ["text-color", "color", "font-color"], correct: 1 },
     { q: "What symbol targets class?", a: [".", "#", "*"], correct: 0 },
-    { q: "What property sets background?", a: ["bg", "background", "background-color"], correct: 2 },
     { q: "How to select element by ID?", a: ["#id", ".id", "*id"], correct: 0 },
-    { q: "Which unit is relative?", a: ["px", "em", "cm"], correct: 1 },
-    { q: "What is used for layout?", a: ["grid", "float", "Both"], correct: 2 },
-    { q: "Which property changes font?", a: ["font-family", "font-type", "font"], correct: 0 },
-    { q: "How to center text?", a: ["text-align: center", "align: center", "text: center"], correct: 0 },
     { q: "Which property sets border?", a: ["border", "line", "outline"], correct: 0 }
   ],
   JavaScript: [
@@ -195,12 +209,7 @@ const quizData = {
     { q: "How to write comment?", a: ["// comment", "<!-- comment -->", "# comment"], correct: 0 },
     { q: "Which method shows alert?", a: ["show()", "alert()", "popup()"], correct: 1 },
     { q: "What is an array?", a: ["A number", "A string", "A list"], correct: 2 },
-    { q: "What is used to repeat code?", a: ["loop", "for", "repeat"], correct: 1 },
-    { q: "How to get element by ID?", a: ["getElementId()", "getElementById()", "queryId()"], correct: 1 },
-    { q: "Which operator is 'equal to'?", a: ["=", "===", "<=>"], correct: 1 },
-    { q: "Which data type is true/false?", a: ["String", "Boolean", "Int"], correct: 1 },
-    { q: "How to define function?", a: ["def", "function", "func"], correct: 1 },
-    { q: "What shows result in console?", a: ["console.log()", "print()", "echo()"], correct: 0 }
+    { q: "Which operator is 'equal to'?", a: ["=", "===", "<=>"], correct: 1 }
   ]
 };
 
@@ -328,6 +337,5 @@ function goHome() {
   document.getElementById("username").value = "";
 }
 </script>
-
 </body>
 </html>
