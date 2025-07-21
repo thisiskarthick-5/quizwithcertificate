@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Web Quiz & Certificate</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f3f3f3;
+      text-align: center;
+      padding: 30px;
+    }
+    .container {
+      background: #fff;
+      max-width: 600px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    button, input[type="text"] {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px;
+      border: none;
+      border-radius: 6px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .answer-btn {
+      display: block;
+      margin: 8px 0;
+      background: #17a2b8;
+    }
+    canvas {
+      margin-top: 20px;
+    }
+    .hidden {
+      display: none;
+    }
+    .quote {
+      font-style: italic;
+      font-size: 18px;
+      color: #444;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="start-screen">
+  <h2>Welcome to the Web Quiz</h2>
+  <input type="text" id="username" placeholder="Enter your name" />
+  <p>Select a Quiz Topic:</p>
+  <button onclick="startQuiz('HTML')">HTML</button>
+  <button onclick="startQuiz('CSS')">CSS</button>
+  <button onclick="startQuiz('JavaScript')">JavaScript</button>
+</div>
+
+<div class="container hidden" id="quiz-screen">
+  <h2 id="topic-title"></h2>
+  <p id="question"></p>
+  <div id="answers"></div>
+  <button id="nextBtn" class="hidden" onclick="nextQuestion()">Next</button>
+</div>
+
+<div class="container hidden" id="result-screen">
+  <h2 id="result-message"></h2>
+  <p id="score-display"></p>
+  <div class="quote hidden" id="quote">"தோல்வி என்பது வெற்றிக்கான முதல் படியாகும்." – Dr. APJ Abdul Kalam</div>
+  <button id="downloadBtn" class="hidden" onclick="downloadCertificate()">Download Certificate</button>
+  <button onclick="goHome()">Back to Home</button>
+  <canvas id="certCanvas" width="600" height="400"></canvas>
+</div>
+
+<script>
+const quizData = {
+  HTML: [
+    { q: "What does HTML stand for?", a: ["Hyper Text Markup Language", "HighText Machine Language", "Hyperlink Text"], correct: 0 },
+    { q: "Which tag creates a hyperlink?", a: ["<link>", "<a>", "<href>"], correct: 1 },
+    { q: "What tag creates a line break?", a: ["<br>", "<lb>", "<break>"], correct: 0 },
+    { q: "Which tag adds an image?", a: ["<pic>", "<img>", "<src>"], correct: 1 },
+    { q: "What is the correct doctype?", a: ["<!DOCTYPE html>", "<html5>", "<doc>"], correct: 0 },
+    { q: "Which tag defines a paragraph?", a: ["<p>", "<para>", "<text>"], correct: 0 },
+    { q: "What tag is used for lists?", a: ["<ul>", "<ol>", "Both"], correct: 2 },
+    { q: "Which tag defines a heading?", a: ["<head>", "<title>", "<h1>"], correct: 2 },
+    { q: "Which attribute sets the image path?", a: ["src", "href", "alt"], correct: 0 },
+    { q: "What tag contains page metadata?", a: ["<meta>", "<head>", "<body>"], correct: 1 }
+  ],
+  CSS: [
+    { q: "What does CSS stand for?", a: ["Creative Style Sheet", "Cascading Style Sheets", "Computer Style Sheet"], correct: 1 },
+    { q: "Which property sets text color?", a: ["text-color", "color", "font-color"], correct: 1 },
+    { q: "What symbol targets class?", a: [".", "#", "*"], correct: 0 },
+    { q: "What property sets background?", a: ["bg", "background", "background-color"], correct: 2 },
+    { q: "How to select element by ID?", a: ["#id", ".id", "*id"], correct: 0 },
+    { q: "Which unit is relative?", a: ["px", "em", "cm"], correct: 1 },
+    { q: "What is used for layout?", a: ["grid", "float", "Both"], correct: 2 },
+    { q: "Which property changes font?", a: ["font-family", "font-type", "font"], correct: 0 },
+    { q: "How to center text?", a: ["text-align: center", "align: center", "text: center"], correct: 0 },
+    { q: "Which property sets border?", a: ["border", "line", "outline"], correct: 0 }
+  ],
+  JavaScript: [
+    { q: "Which keyword declares a variable?", a: ["int", "let", "string"], correct: 1 },
+    { q: "How to write comment?", a: ["// comment", "<!-- comment -->", "# comment"], correct: 0 },
+    { q: "Which method shows alert?", a: ["show()", "alert()", "popup()"], correct: 1 },
+    { q: "What is an array?", a: ["A number", "A string", "A list"], correct: 2 },
+    { q: "What is used to repeat code?", a: ["loop", "for", "repeat"], correct: 1 },
+    { q: "How to get element by ID?", a: ["getElementId()", "getElementById()", "queryId()"], correct: 1 },
+    { q: "Which operator is 'equal to'?", a: ["=", "===", "<=>"], correct: 1 },
+    { q: "Which data type is true/false?", a: ["String", "Boolean", "Int"], correct: 1 },
+    { q: "How to define function?", a: ["def", "function", "func"], correct: 1 },
+    { q: "What shows result in console?", a: ["console.log()", "print()", "echo()"], correct: 0 }
+  ]
+};
+
+let currentQuestion = 0, score = 0, selectedTopic = "", userName = "";
+
+function startQuiz(topic) {
+  userName = document.getElementById("username").value.trim();
+  if (!userName) {
+    alert("Please enter your name.");
+    return;
+  }
+  selectedTopic = topic;
+  currentQuestion = 0;
+  score = 0;
+  document.getElementById("start-screen").classList.add("hidden");
+  document.getElementById("quiz-screen").classList.remove("hidden");
+  document.getElementById("topic-title").textContent = `${topic} Quiz`;
+  loadQuestion();
+}
+
+function loadQuestion() {
+  const quiz = quizData[selectedTopic];
+  const q = quiz[currentQuestion];
+  document.getElementById("question").textContent = q.q;
+  const answersEl = document.getElementById("answers");
+  answersEl.innerHTML = "";
+  document.getElementById("nextBtn").classList.add("hidden");
+
+  q.a.forEach((opt, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "answer-btn";
+    btn.textContent = opt;
+    btn.onclick = () => checkAnswer(idx);
+    answersEl.appendChild(btn);
+  });
+}
+
+function checkAnswer(selected) {
+  const correct = quizData[selectedTopic][currentQuestion].correct;
+  const buttons = document.querySelectorAll(".answer-btn");
+  buttons.forEach((btn, idx) => {
+    btn.disabled = true;
+    btn.style.backgroundColor = idx === correct ? "#28a745" : (idx === selected ? "#dc3545" : "#17a2b8");
+  });
+  if (selected === correct) score++;
+  document.getElementById("nextBtn").classList.remove("hidden");
+}
+
+function nextQuestion() {
+  currentQuestion++;
+  if (currentQuestion < quizData[selectedTopic].length) {
+    loadQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById("quiz-screen").classList.add("hidden");
+  document.getElementById("result-screen").classList.remove("hidden");
+  const percent = (score / quizData[selectedTopic].length) * 100;
+  document.getElementById("score-display").textContent = `Your Score: ${score} / ${quizData[selectedTopic].length} (${percent.toFixed(0)}%)`;
+
+  if (percent >= 80) {
+    document.getElementById("result-message").textContent = "🎉 Congratulations! You passed.";
+    document.getElementById("downloadBtn").classList.remove("hidden");
+    document.getElementById("quote").classList.add("hidden");
+    generateCertificate(userName, selectedTopic, percent.toFixed(0));
+  } else {
+    document.getElementById("result-message").textContent = "❌ You did not pass.";
+    document.getElementById("quote").classList.remove("hidden");
+    document.getElementById("downloadBtn").classList.add("hidden");
+  }
+}
+
+function generateCertificate(name, topic, percent) {
+  const canvas = document.getElementById("certCanvas");
+  const ctx = canvas.getContext("2d");
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#fdf6e3";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = "#c8aa6e";
+  ctx.lineWidth = 10;
+  ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+  ctx.fillStyle = "#333";
+  ctx.font = "bold 30px Georgia";
+  ctx.textAlign = "center";
+  ctx.fillText("Certificate of Completion", canvas.width / 2, 70);
+
+  ctx.font = "20px Georgia";
+  ctx.fillText(`This certifies that`, canvas.width / 2, 130);
+
+  ctx.font = "bold 26px Arial";
+  ctx.fillStyle = "#007bff";
+  ctx.fillText(name, canvas.width / 2, 170);
+
+  ctx.fillStyle = "#333";
+  ctx.font = "18px Georgia";
+  ctx.fillText(`has successfully completed the`, canvas.width / 2, 210);
+  ctx.fillText(`${topic} Quiz with a score of ${percent}%`, canvas.width / 2, 240);
+
+  const date = new Date().toLocaleDateString();
+  ctx.font = "16px serif";
+  ctx.fillText(`Date: ${date}`, canvas.width / 2, 280);
+
+  ctx.fillText("____________________", canvas.width / 2, 330);
+  ctx.font = "14px serif";
+  ctx.fillText("Instructor Signature", canvas.width / 2, 355);
+}
+
+function downloadCertificate() {
+  const canvas = document.getElementById("certCanvas");
+  const link = document.createElement("a");
+  link.download = "certificate.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
+function goHome() {
+  document.getElementById("result-screen").classList.add("hidden");
+  document.getElementById("start-screen").classList.remove("hidden");
+  document.getElementById("username").value = "";
+}
+</script>
+
+</body>
+</html>
