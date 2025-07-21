@@ -4,51 +4,136 @@
   <meta charset="UTF-8" />
   <title>Web Quiz & Certificate</title>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #f3f3f3;
-      text-align: center;
-      padding: 30px;
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --accent: #06b6d4;
+      --correct: #10b981;
+      --wrong: #ef4444;
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --text: #1f2937;
     }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      text-align: center;
+      padding: 40px 20px;
+      margin: 0;
+    }
+
     .container {
-      background: #fff;
+      background: var(--card);
       max-width: 600px;
       margin: auto;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 30px 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      transition: all 0.3s ease-in-out;
     }
-    button, input[type="text"] {
+
+    h2 {
+      margin-top: 0;
+      font-size: 28px;
+    }
+
+    input[type="text"] {
+      padding: 12px 15px;
+      width: 80%;
+      font-size: 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      margin: 10px 0 20px;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    button {
       padding: 10px 20px;
       font-size: 16px;
-      margin: 10px;
+      margin: 10px 8px;
       border: none;
-      border-radius: 6px;
-    }
-    button {
-      background-color: #007bff;
+      border-radius: 8px;
+      background-color: var(--primary);
       color: white;
       cursor: pointer;
+      transition: background-color 0.2s, transform 0.2s;
     }
+
     button:hover {
-      background-color: #0056b3;
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
     }
+
     .answer-btn {
       display: block;
-      margin: 8px 0;
-      background: #17a2b8;
+      width: 100%;
+      margin: 10px auto;
+      background-color: var(--accent);
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: background-color 0.2s ease-in-out;
     }
-    canvas {
-      margin-top: 20px;
+
+    .answer-btn:hover {
+      background-color: #0891b2;
     }
+
+    .answer-btn.correct {
+      background-color: var(--correct) !important;
+    }
+
+    .answer-btn.wrong {
+      background-color: var(--wrong) !important;
+    }
+
     .hidden {
       display: none;
     }
+
+    #nextBtn {
+      margin-top: 20px;
+      background-color: var(--primary);
+    }
+
+    canvas {
+      margin-top: 30px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
     .quote {
       font-style: italic;
       font-size: 18px;
-      color: #444;
+      color: #6b7280;
       margin-top: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 20px 10px;
+      }
+
+      input[type="text"] {
+        width: 100%;
+      }
+
+      button {
+        width: 100%;
+        margin: 10px 0;
+      }
     }
   </style>
 </head>
@@ -158,7 +243,8 @@ function checkAnswer(selected) {
   const buttons = document.querySelectorAll(".answer-btn");
   buttons.forEach((btn, idx) => {
     btn.disabled = true;
-    btn.style.backgroundColor = idx === correct ? "#28a745" : (idx === selected ? "#dc3545" : "#17a2b8");
+    if (idx === correct) btn.classList.add("correct");
+    else if (idx === selected) btn.classList.add("wrong");
   });
   if (selected === correct) score++;
   document.getElementById("nextBtn").classList.remove("hidden");
