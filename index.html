@@ -1,341 +1,388 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Web Quiz & Certificate</title>
-  <style>
-    :root {
-      --primary: #4f46e5;
-      --primary-dark: #4338ca;
-      --accent: #06b6d4;
-      --correct: #10b981;
-      --wrong: #ef4444;
-      --bg: #f9fafb;
-      --card: #ffffff;
-      --text: #1f2937;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCS Learning & Certification Hub</title>
 
-    * {
-      box-sizing: border-box;
-    }
+    <!-- JS Library for PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <!-- Google Fonts for a modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      text-align: center;
-      padding: 40px 20px;
-      margin: 0;
-    }
+    <style>
+        :root {
+            --primary-bg: #1a1a1a;
+            --secondary-bg: #2c2c2c;
+            --font-color: #f0f0f0;
+            --border-color: #444;
+            --accent-color: #ffca28; /* Firebase-like Yellow */
+            --success-color: #4CAF50;
+            --error-color: #f44336;
+        }
 
-    .container {
-      background: var(--card);
-      max-width: 600px;
-      margin: auto;
-      padding: 30px 20px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-      transition: all 0.3s ease-in-out;
-    }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--font-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
 
-    h2 {
-      margin-top: 0;
-      font-size: 28px;
-    }
+        .container {
+            background-color: var(--secondary-bg);
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            width: 100%;
+            max-width: 850px;
+            text-align: center;
+        }
 
-    input[type="text"] {
-      padding: 12px 15px;
-      width: 80%;
-      font-size: 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      margin: 10px 0 20px;
-      transition: border-color 0.2s;
-    }
+        .screen {
+            padding: 40px;
+            box-sizing: border-box;
+        }
+        
+        /* --- Screen Styles --- */
+        #intro-screen .logo {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+        #intro-screen h1 {
+            color: var(--accent-color);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        #intro-screen p {
+            font-size: 1.1em;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            line-height: 1.6;
+        }
+        #category-screen h2 {
+            margin-bottom: 30px;
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
 
-    input[type="text"]:focus {
-      border-color: var(--primary);
-      outline: none;
-    }
+        /* --- Element Styles --- */
+        .input-field {
+            width: 80%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+            background-color: #333;
+            color: var(--font-color);
+        }
+        .input-field::placeholder {
+            color: #888;
+        }
 
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin: 10px 8px;
-      border: none;
-      border-radius: 8px;
-      background-color: var(--primary);
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.2s, transform 0.2s;
-    }
+        .btn {
+            background-color: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+            font-weight: bold;
+            margin: 5px;
+            text-transform: uppercase;
+        }
+        .btn:hover {
+            background-color: #ffdb70;
+            transform: translateY(-2px);
+        }
+        .category-btn {
+            background-color: transparent;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            width: 100%;
+            padding: 20px;
+            font-size: 1.1em;
+        }
 
-    button:hover {
-      background-color: var(--primary-dark);
-      transform: translateY(-2px);
-    }
+        .answer-btn {
+            display: block;
+            width: 100%;
+            background-color: #3a3a3a;
+            color: var(--font-color);
+            text-align: left;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .answer-btn:hover {
+            background-color: #4a4a4a;
+        }
+        .answer-btn.correct {
+            background-color: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+        .answer-btn.wrong {
+            background-color: var(--error-color);
+            color: white;
+            border-color: var(--error-color);
+        }
 
-    .answer-btn {
-      display: block;
-      width: 100%;
-      margin: 10px auto;
-      background-color: var(--accent);
-      color: white;
-      font-weight: bold;
-      border-radius: 8px;
-      transition: background-color 0.2s ease-in-out;
-    }
+        .hide { display: none; }
 
-    .answer-btn:hover {
-      background-color: #0891b2;
-    }
-
-    .answer-btn.correct {
-      background-color: var(--correct) !important;
-    }
-
-    .answer-btn.wrong {
-      background-color: var(--wrong) !important;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    #nextBtn {
-      margin-top: 20px;
-      background-color: var(--primary);
-    }
-
-    canvas {
-      margin-top: 30px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-
-    .quote {
-      font-style: italic;
-      font-size: 18px;
-      color: #6b7280;
-      margin-top: 20px;
-    }
-
-    @media (max-width: 640px) {
-      .container {
-        padding: 20px 10px;
-      }
-
-      input[type="text"] {
-        width: 100%;
-      }
-
-      button {
-        width: 100%;
-        margin: 10px 0;
-      }
-    }
-
-    /* >>> Animated dark background with grid lines <<< */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #0d1117;
-      background-image: linear-gradient(white 1px, transparent 1px),
-                        linear-gradient(90deg, white 1px, transparent 1px);
-      background-size: 40px 40px;
-      z-index: -1;
-      animation: moveGrid 10s linear infinite;
-    }
-
-    @keyframes moveGrid {
-      0% {
-        background-position: 0 0;
-      }
-      100% {
-        background-position: 40px 40px;
-      }
-    }
-  </style>
+        /* --- Certificate --- */
+        #certificate-container {
+            padding: 20px;
+            background-color: var(--primary-bg);
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .certificate {
+            border: 10px solid var(--accent-color);
+            padding: 40px;
+            background-color: var(--secondary-bg);
+        }
+        .certificate-header img {
+            max-width: 120px;
+        }
+        .certificate-header h1 {
+            color: var(--accent-color);
+        }
+        #cert-name {
+            font-family: 'Georgia', serif;
+            font-size: 2.8em;
+            color: #fff;
+            margin: 20px 0;
+        }
+        .certificate-footer img {
+            max-width: 150px;
+        }
+    </style>
 </head>
 <body>
-<div class="container" id="start-screen">
-  <h2>Welcome to the Web Quiz</h2>
-  <input type="text" id="username" placeholder="Enter your name" />
-  <p>Select a Quiz Topic:</p>
-  <button onclick="startQuiz('HTML')">HTML</button>
-  <button onclick="startQuiz('CSS')">CSS</button>
-  <button onclick="startQuiz('JavaScript')">JavaScript</button>
-</div>
 
-<div class="container hidden" id="quiz-screen">
-  <h2 id="topic-title"></h2>
-  <p id="question"></p>
-  <div id="answers"></div>
-  <button id="nextBtn" class="hidden" onclick="nextQuestion()">Next</button>
-</div>
+    <div class="container">
+        <!-- Intro Screen -->
+        <div id="intro-screen" class="screen">
+            <!-- IMPORTANT: Use a white/light version of your logo -->
+            <img src="ccs-logo-white.png" alt="CCS Logo" class="logo">
+            <h1>Creative Certification Solutions</h1>
+            <p>Welcome to the CCS Learning Hub. We are dedicated to providing top-tier training and certification in modern technology. Enter your name below and select a quiz to test your skills and earn your certificate.</p>
+            <input type="text" id="name-input" class="input-field" placeholder="Please enter your full name">
+            <button id="proceed-btn" class="btn">Proceed to Quizzes</button>
+        </div>
+        
+        <!-- Category Selection Screen -->
+        <div id="category-screen" class="screen hide">
+            <h2>Hello, <span id="user-name-display"></span>! Select a Category</h2>
+            <div class="category-grid">
+                <button class="btn category-btn" data-category="html">HTML</button>
+                <button class="btn category-btn" data-category="css">CSS</button>
+                <button class="btn category-btn" data-category="js">JavaScript</button>
+                <button class="btn category-btn" data-category="python">Python</button>
+                <button class="btn category-btn" data-category="c">C Language</button>
+            </div>
+        </div>
 
-<div class="container hidden" id="result-screen">
-  <h2 id="result-message"></h2>
-  <p id="score-display"></p>
-  <div class="quote hidden" id="quote">"தோல்வி என்பது வெற்றிக்கான முதல் படியாகும்." – Dr. APJ Abdul Kalam</div>
-  <button id="downloadBtn" class="hidden" onclick="downloadCertificate()">Download Certificate</button>
-  <button onclick="goHome()">Back to Home</button>
-  <canvas id="certCanvas" width="600" height="400"></canvas>
-</div>
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen hide">
+            <h2 id="question-text">Question Text</h2>
+            <div id="answer-buttons"></div>
+            <p id="progress-text">Question 1 of X</p>
+        </div>
 
-<script>
-const quizData = {
-  HTML: [
-    { q: "What does HTML stand for?", a: ["Hyper Text Markup Language", "HighText Machine Language", "Hyperlink Text"], correct: 0 },
-    { q: "Which tag creates a hyperlink?", a: ["<link>", "<a>", "<href>"], correct: 1 },
-    { q: "What tag creates a line break?", a: ["<br>", "<lb>", "<break>"], correct: 0 },
-    { q: "Which tag adds an image?", a: ["<pic>", "<img>", "<src>"], correct: 1 },
-    { q: "What is the correct doctype?", a: ["<!DOCTYPE html>", "<html5>", "<doc>"], correct: 0 }
-  ],
-  CSS: [
-    { q: "What does CSS stand for?", a: ["Creative Style Sheet", "Cascading Style Sheets", "Computer Style Sheet"], correct: 1 },
-    { q: "Which property sets text color?", a: ["text-color", "color", "font-color"], correct: 1 },
-    { q: "What symbol targets class?", a: [".", "#", "*"], correct: 0 },
-    { q: "How to select element by ID?", a: ["#id", ".id", "*id"], correct: 0 },
-    { q: "Which property sets border?", a: ["border", "line", "outline"], correct: 0 }
-  ],
-  JavaScript: [
-    { q: "Which keyword declares a variable?", a: ["int", "let", "string"], correct: 1 },
-    { q: "How to write comment?", a: ["// comment", "<!-- comment -->", "# comment"], correct: 0 },
-    { q: "Which method shows alert?", a: ["show()", "alert()", "popup()"], correct: 1 },
-    { q: "What is an array?", a: ["A number", "A string", "A list"], correct: 2 },
-    { q: "Which operator is 'equal to'?", a: ["=", "===", "<=>"], correct: 1 }
-  ]
-};
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen hide">
+            <h2 id="result-heading">Quiz Complete!</h2>
+            <p id="score-text">Your Score: 0/0 (0%)</p>
+            <div id="result-message"></div>
+            <button id="restart-btn" class="btn">Back to Categories</button>
+            
+            <div id="certificate-container" class="hide">
+                <div class="certificate" id="certificate">
+                    <div class="certificate-header">
+                        <img src="ccs-logo-white.png" alt="CCS Logo">
+                        <h1>Certificate of Achievement</h1>
+                    </div>
+                    <div class="certificate-body">
+                        <p>This is to certify that</p>
+                        <h2 id="cert-name">[Student Name]</h2>
+                        <p>has successfully completed the <strong><span id="cert-topic"></span></strong> quiz with a score of <strong id="cert-score"></strong>.</p>
+                        <p>Date: <strong id="cert-date"></strong></p>
+                    </div>
+                    <div class="certificate-footer">
+                        <img src="signature-white.png" alt="Signature">
+                        <p><strong>Jane Doe</strong><br>Director of Education, CCS</p>
+                    </div>
+                </div>
+                <button id="download-pdf-btn" class="btn">Download PDF</button>
+            </div>
+        </div>
+    </div>
 
-let currentQuestion = 0, score = 0, selectedTopic = "", userName = "";
+    <script>
+        // --- QUIZ DATABASE ---
+        const quizDatabase = {
+            html: [
+                { question: "What does HTML stand for?", answers: [{ text: "Hyper Text Markup Language", correct: true }, { text: "Home Tool Markup Language", correct: false }] },
+                { question: "Which tag is used to define an unordered list?", answers: [{ text: "<ul>", correct: true }, { text: "<li>", correct: false }, { text: "<ol>", correct: false }] }
+            ],
+            css: [
+                { question: "What does CSS stand for?", answers: [{ text: "Cascading Style Sheets", correct: true }, { text: "Creative Style Sheets", correct: false }] },
+                { question: "Which property is used to change the background color?", answers: [{ text: "background-color", correct: true }, { text: "color", correct: false }] }
+            ],
+            js: [
+                { question: "Inside which HTML element do we put the JavaScript?", answers: [{ text: "<script>", correct: true }, { text: "<javascript>", correct: false }] },
+                { question: "How do you write 'Hello World' in an alert box?", answers: [{ text: "alert('Hello World');", correct: true }, { text: "msg('Hello World');", correct: false }] }
+            ],
+            python: [
+                { question: "Which keyword is used for functions in Python?", answers: [{ text: "def", correct: true }, { text: "function", correct: false }] },
+                { question: "What is the correct file extension for Python files?", answers: [{ text: ".py", correct: true }, { text: ".pt", correct: false }] }
+            ],
+            c: [
+                { question: "Which symbol is used for a single-line comment in C?", answers: [{ text: "//", correct: true }, { text: "#", correct: false }] },
+                { question: "What is the format specifier for an integer in C?", answers: [{ text: "%d", correct: true }, { text: "%f", correct: false }] }
+            ]
+        };
+        const passingScorePercentage = 75;
 
-function startQuiz(topic) {
-  userName = document.getElementById("username").value.trim();
-  if (!userName) {
-    alert("Please enter your name.");
-    return;
-  }
-  selectedTopic = topic;
-  currentQuestion = 0;
-  score = 0;
-  document.getElementById("start-screen").classList.add("hidden");
-  document.getElementById("quiz-screen").classList.remove("hidden");
-  document.getElementById("topic-title").textContent = `${topic} Quiz`;
-  loadQuestion();
-}
+        // --- DOM ELEMENTS & STATE ---
+        const screens = {
+            intro: document.getElementById('intro-screen'),
+            category: document.getElementById('category-screen'),
+            quiz: document.getElementById('quiz-screen'),
+            results: document.getElementById('results-screen')
+        };
+        const nameInput = document.getElementById('name-input');
+        const proceedBtn = document.getElementById('proceed-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        let userName, currentQuizData, currentQuestionIndex, score;
 
-function loadQuestion() {
-  const quiz = quizData[selectedTopic];
-  const q = quiz[currentQuestion];
-  document.getElementById("question").textContent = q.q;
-  const answersEl = document.getElementById("answers");
-  answersEl.innerHTML = "";
-  document.getElementById("nextBtn").classList.add("hidden");
+        // --- NAVIGATION ---
+        function showScreen(screenName) {
+            Object.values(screens).forEach(screen => screen.classList.add('hide'));
+            screens[screenName].classList.remove('hide');
+        }
 
-  q.a.forEach((opt, idx) => {
-    const btn = document.createElement("button");
-    btn.className = "answer-btn";
-    btn.textContent = opt;
-    btn.onclick = () => checkAnswer(idx);
-    answersEl.appendChild(btn);
-  });
-}
+        proceedBtn.addEventListener('click', () => {
+            userName = nameInput.value;
+            if (!userName.trim()) {
+                alert("Please enter your name.");
+                return;
+            }
+            document.getElementById('user-name-display').textContent = userName;
+            showScreen('category');
+        });
+        
+        document.querySelectorAll('.category-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const category = e.target.dataset.category;
+                startQuiz(category);
+            });
+        });
 
-function checkAnswer(selected) {
-  const correct = quizData[selectedTopic][currentQuestion].correct;
-  const buttons = document.querySelectorAll(".answer-btn");
-  buttons.forEach((btn, idx) => {
-    btn.disabled = true;
-    if (idx === correct) btn.classList.add("correct");
-    else if (idx === selected) btn.classList.add("wrong");
-  });
-  if (selected === correct) score++;
-  document.getElementById("nextBtn").classList.remove("hidden");
-}
+        restartBtn.addEventListener('click', () => showScreen('category'));
 
-function nextQuestion() {
-  currentQuestion++;
-  if (currentQuestion < quizData[selectedTopic].length) {
-    loadQuestion();
-  } else {
-    showResult();
-  }
-}
+        // --- QUIZ LOGIC ---
+        function startQuiz(category) {
+            currentQuizData = quizDatabase[category];
+            document.getElementById('cert-topic').textContent = category.toUpperCase(); // For certificate
+            currentQuestionIndex = 0;
+            score = 0;
+            showScreen('quiz');
+            showQuestion();
+        }
 
-function showResult() {
-  document.getElementById("quiz-screen").classList.add("hidden");
-  document.getElementById("result-screen").classList.remove("hidden");
-  const percent = (score / quizData[selectedTopic].length) * 100;
-  document.getElementById("score-display").textContent = `Your Score: ${score} / ${quizData[selectedTopic].length} (${percent.toFixed(0)}%)`;
+        function showQuestion() {
+            resetState();
+            const currentQuestion = currentQuizData[currentQuestionIndex];
+            document.getElementById('question-text').innerText = currentQuestion.question;
+            document.getElementById('progress-text').innerText = `Question ${currentQuestionIndex + 1} of ${currentQuizData.length}`;
 
-  if (percent >= 80) {
-    document.getElementById("result-message").textContent = "🎉 Congratulations! You passed.";
-    document.getElementById("downloadBtn").classList.remove("hidden");
-    document.getElementById("quote").classList.add("hidden");
-    generateCertificate(userName, selectedTopic, percent.toFixed(0));
-  } else {
-    document.getElementById("result-message").textContent = "❌ You did not pass.";
-    document.getElementById("quote").classList.remove("hidden");
-    document.getElementById("downloadBtn").classList.add("hidden");
-  }
-}
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.innerText = answer.text;
+                button.classList.add('btn', 'answer-btn');
+                if (answer.correct) button.dataset.correct = true;
+                button.addEventListener('click', selectAnswer);
+                document.getElementById('answer-buttons').appendChild(button);
+            });
+        }
 
-function generateCertificate(name, topic, percent) {
-  const canvas = document.getElementById("certCanvas");
-  const ctx = canvas.getContext("2d");
+        function resetState() {
+            const answerButtons = document.getElementById('answer-buttons');
+            while (answerButtons.firstChild) {
+                answerButtons.removeChild(answerButtons.firstChild);
+            }
+        }
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#fdf6e3";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = "#c8aa6e";
-  ctx.lineWidth = 10;
-  ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+        function selectAnswer(e) {
+            const selectedBtn = e.target;
+            const isCorrect = selectedBtn.dataset.correct === "true";
+            if (isCorrect) score++;
 
-  ctx.fillStyle = "#333";
-  ctx.font = "bold 30px Georgia";
-  ctx.textAlign = "center";
-  ctx.fillText("Certificate of Completion", canvas.width / 2, 70);
+            Array.from(document.getElementById('answer-buttons').children).forEach(button => {
+                if (button.dataset.correct) button.classList.add('correct');
+                else if (button === selectedBtn) button.classList.add('wrong');
+                button.disabled = true;
+            });
+            
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < currentQuizData.length) showQuestion();
+                else showResults();
+            }, 1500);
+        }
 
-  ctx.font = "20px Georgia";
-  ctx.fillText(`This certifies that`, canvas.width / 2, 130);
+        function showResults() {
+            showScreen('results');
+            const finalScorePercentage = Math.round((score / currentQuizData.length) * 100);
+            document.getElementById('score-text').innerText = `Your Score: ${score}/${currentQuizData.length} (${finalScorePercentage}%)`;
+            
+            const certificateContainer = document.getElementById('certificate-container');
+            if (finalScorePercentage >= passingScorePercentage) {
+                document.getElementById('result-heading').innerText = "Congratulations, You Passed!";
+                document.getElementById('result-message').innerText = "You have earned a certificate!";
+                generateCertificate(finalScorePercentage);
+                certificateContainer.classList.remove('hide');
+            } else {
+                document.getElementById('result-heading').innerText = "Quiz Complete";
+                document.getElementById('result-message').innerText = `You needed ${passingScorePercentage}% to pass. Please try again.`;
+                certificateContainer.classList.add('hide');
+            }
+        }
+        
+        // --- CERTIFICATE LOGIC ---
+        function generateCertificate(score) {
+            const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('cert-name').innerText = userName;
+            document.getElementById('cert-score').innerText = `${score}%`;
+            document.getElementById('cert-date').innerText = today;
+        }
 
-  ctx.font = "bold 26px Arial";
-  ctx.fillStyle = "#007bff";
-  ctx.fillText(name, canvas.width / 2, 170);
-
-  ctx.fillStyle = "#333";
-  ctx.font = "18px Georgia";
-  ctx.fillText(`has successfully completed the`, canvas.width / 2, 210);
-  ctx.fillText(`${topic} Quiz with a score of ${percent}%`, canvas.width / 2, 240);
-
-  const date = new Date().toLocaleDateString();
-  ctx.font = "16px serif";
-  ctx.fillText(`Date: ${date}`, canvas.width / 2, 280);
-
-  ctx.fillText("____________________", canvas.width / 2, 330);
-  ctx.font = "14px serif";
-  ctx.fillText("Instructor Signature", canvas.width / 2, 355);
-}
-
-function downloadCertificate() {
-  const canvas = document.getElementById("certCanvas");
-  const link = document.createElement("a");
-  link.download = "certificate.png";
-  link.href = canvas.toDataURL("image/png");
-  link.click();
-}
-
-function goHome() {
-  document.getElementById("result-screen").classList.add("hidden");
-  document.getElementById("start-screen").classList.remove("hidden");
-  document.getElementById("username").value = "";
-}
-</script>
+        document.getElementById('download-pdf-btn').addEventListener('click', () => {
+            const certificate = document.getElementById('certificate');
+            const opt = {
+                margin: 0,
+                filename: `CCS_Certificate_${userName.replace(/ /g, '_')}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 2, backgroundColor: null }, // Use null to capture background from style
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+            };
+            html2pdf().from(certificate).set(opt).save();
+        });
+    </script>
 </body>
 </html>
